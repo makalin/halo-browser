@@ -37,8 +37,25 @@ class BookmarksProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removeBookmark(Bookmark bookmark) async {
-    _bookmarks.removeWhere((b) => b.url == bookmark.url);
+  Future<void> addBookmarkWithDetails(String title, String url, {String? favicon}) async {
+    final bookmark = Bookmark(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      url: url,
+      favicon: favicon,
+      dateAdded: DateTime.now(),
+    );
+    await addBookmark(bookmark);
+  }
+
+  Future<void> removeBookmark(String id) async {
+    _bookmarks.removeWhere((b) => b.id == id);
+    await _saveBookmarks();
+    notifyListeners();
+  }
+
+  Future<void> removeBookmarkByUrl(String url) async {
+    _bookmarks.removeWhere((b) => b.url == url);
     await _saveBookmarks();
     notifyListeners();
   }

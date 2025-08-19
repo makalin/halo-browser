@@ -1,9 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:halo_browser/models/tab.dart';
-import 'package:halo_browser/providers/history_provider.dart';
 
 class BrowserProvider with ChangeNotifier {
-  List<BrowserTab> _tabs = [];
+  final List<BrowserTab> _tabs = [];
   BrowserTab? _currentTab;
   bool _isLoading = false;
   final List<String> _navigationHistory = [];
@@ -32,15 +31,21 @@ class BrowserProvider with ChangeNotifier {
   }
 
   void switchTab(String tabId) {
-    _currentTab = _tabs.firstWhere((tab) => tab.id == tabId);
-    notifyListeners();
+    final tab = _tabs.firstWhere((tab) => tab.id == tabId);
+    if (_currentTab?.id != tab.id) {
+      _currentTab = tab;
+      notifyListeners();
+    }
   }
 
   void closeTab(String tabId) {
+    final wasCurrentTab = _currentTab?.id == tabId;
     _tabs.removeWhere((tab) => tab.id == tabId);
-    if (_currentTab?.id == tabId) {
+    
+    if (wasCurrentTab) {
       _currentTab = _tabs.isNotEmpty ? _tabs.last : null;
     }
+    
     if (_tabs.isEmpty) {
       _addNewTab();
     }
@@ -48,7 +53,7 @@ class BrowserProvider with ChangeNotifier {
   }
 
   void updateCurrentTabUrl(String url) {
-    if (_currentTab != null) {
+    if (_currentTab != null && _currentTab!.url != url) {
       _currentTab!.url = url;
       _addToHistory(url);
       notifyListeners();
@@ -56,15 +61,17 @@ class BrowserProvider with ChangeNotifier {
   }
 
   void updateCurrentTabTitle(String title) {
-    if (_currentTab != null) {
+    if (_currentTab != null && _currentTab!.title != title) {
       _currentTab!.title = title;
       notifyListeners();
     }
   }
 
   void setLoading(bool loading) {
-    _isLoading = loading;
-    notifyListeners();
+    if (_isLoading != loading) {
+      _isLoading = loading;
+      notifyListeners();
+    }
   }
 
   void _addToHistory(String url) {
@@ -73,8 +80,11 @@ class BrowserProvider with ChangeNotifier {
       _navigationHistory.removeRange(_currentHistoryIndex + 1, _navigationHistory.length);
     }
     
-    _navigationHistory.add(url);
-    _currentHistoryIndex = _navigationHistory.length - 1;
+    // Only add if it's different from the current URL
+    if (_navigationHistory.isEmpty || _navigationHistory.last != url) {
+      _navigationHistory.add(url);
+      _currentHistoryIndex = _navigationHistory.length - 1;
+    }
   }
 
   void navigateToUrl(String url) {
@@ -89,10 +99,10 @@ class BrowserProvider with ChangeNotifier {
     if (canGoBack) {
       _currentHistoryIndex--;
       final url = _navigationHistory[_currentHistoryIndex];
-      if (_currentTab != null) {
+      if (_currentTab != null && _currentTab!.url != url) {
         _currentTab!.url = url;
+        notifyListeners();
       }
-      notifyListeners();
     }
   }
 
@@ -100,15 +110,16 @@ class BrowserProvider with ChangeNotifier {
     if (canGoForward) {
       _currentHistoryIndex++;
       final url = _navigationHistory[_currentHistoryIndex];
-      if (_currentTab != null) {
+      if (_currentTab != null && _currentTab!.url != url) {
         _currentTab!.url = url;
+        notifyListeners();
       }
-      notifyListeners();
     }
   }
 
   void reload() {
     // This would trigger a reload in the WebView
+    // For now, just notify listeners
     notifyListeners();
   }
 

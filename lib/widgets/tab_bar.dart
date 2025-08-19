@@ -16,10 +16,17 @@ class CustomTabBar extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).dividerColor,
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -252,6 +259,7 @@ class _TabItem extends StatelessWidget {
       ),
       items: [
         PopupMenuItem(
+          onTap: onDuplicate,
           child: const Row(
             children: [
               Icon(Icons.copy, size: 16),
@@ -259,9 +267,9 @@ class _TabItem extends StatelessWidget {
               Text('Duplicate tab'),
             ],
           ),
-          onTap: onDuplicate,
         ),
         PopupMenuItem(
+          onTap: onCloseOthers,
           child: const Row(
             children: [
               Icon(Icons.close, size: 16),
@@ -269,9 +277,9 @@ class _TabItem extends StatelessWidget {
               Text('Close other tabs'),
             ],
           ),
-          onTap: onCloseOthers,
         ),
         PopupMenuItem(
+          onTap: onClose,
           child: const Row(
             children: [
               Icon(Icons.close, size: 16),
@@ -279,7 +287,6 @@ class _TabItem extends StatelessWidget {
               Text('Close tab'),
             ],
           ),
-          onTap: onClose,
         ),
       ],
     );

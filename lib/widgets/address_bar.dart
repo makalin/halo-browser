@@ -15,6 +15,7 @@ class _AddressBarState extends State<AddressBar> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isEditing = false;
+  String _lastUrl = '';
 
   @override
   void initState() {
@@ -23,9 +24,12 @@ class _AddressBarState extends State<AddressBar> {
   }
 
   void _onFocusChange() {
-    setState(() {
-      _isEditing = _focusNode.hasFocus;
-    });
+    final newEditingState = _focusNode.hasFocus;
+    if (_isEditing != newEditingState) {
+      setState(() {
+        _isEditing = newEditingState;
+      });
+    }
   }
 
   @override
@@ -38,8 +42,9 @@ class _AddressBarState extends State<AddressBar> {
   void _updateControllerFromProvider() {
     final provider = context.read<BrowserProvider>();
     if (provider.currentTab != null && 
-        _controller.text != provider.currentTab!.url) {
-      _controller.text = provider.currentTab!.url;
+        _lastUrl != provider.currentTab!.url) {
+      _lastUrl = provider.currentTab!.url;
+      _controller.text = _lastUrl;
     }
   }
 
@@ -88,10 +93,17 @@ class _AddressBarState extends State<AddressBar> {
             color: Theme.of(context).colorScheme.surface,
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).dividerColor,
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -101,7 +113,7 @@ class _AddressBarState extends State<AddressBar> {
                   Icons.arrow_back,
                   color: provider.canGoBack 
                     ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
                 onPressed: provider.canGoBack ? provider.goBack : null,
                 tooltip: 'Go back',
@@ -111,7 +123,7 @@ class _AddressBarState extends State<AddressBar> {
                   Icons.arrow_forward,
                   color: provider.canGoForward 
                     ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
                 onPressed: provider.canGoForward ? provider.goForward : null,
                 tooltip: 'Go forward',
@@ -131,7 +143,7 @@ class _AddressBarState extends State<AddressBar> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _isEditing 
@@ -183,13 +195,11 @@ class _AddressBarState extends State<AddressBar> {
                     onPressed: () {
                       if (currentUrl != null) {
                         if (isBookmarked) {
-                          final bookmark = bookmarksProvider.bookmarks
-                            .firstWhere((b) => b.url == currentUrl);
-                          bookmarksProvider.removeBookmark(bookmark.id);
+                          bookmarksProvider.removeBookmarkByUrl(currentUrl);
                         } else {
-                          bookmarksProvider.addBookmark(
-                            title: provider.currentTab?.title ?? 'Untitled',
-                            url: currentUrl,
+                          bookmarksProvider.addBookmarkWithDetails(
+                            provider.currentTab?.title ?? 'Untitled',
+                            currentUrl,
                           );
                         }
                       }
@@ -265,7 +275,7 @@ class _UrlSuggestionsSheet extends StatelessWidget {
                     child: Text(
                       'No suggestions found',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ),

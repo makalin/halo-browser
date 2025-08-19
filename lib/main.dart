@@ -31,8 +31,8 @@ class HaloBrowser extends StatelessWidget {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: 'Halo Browser',
-            theme: ThemeData.light(useMaterial3: true),
-            darkTheme: ThemeData.dark(useMaterial3: true),
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
             themeMode: themeProvider.themeMode,
             home: const BrowserScreen(),
             debugShowCheckedModeBanner: false,

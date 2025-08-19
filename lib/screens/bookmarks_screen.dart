@@ -89,6 +89,7 @@ class BookmarksScreen extends StatelessWidget {
               if (titleController.text.isNotEmpty && urlController.text.isNotEmpty) {
                 context.read<BookmarksProvider>().addBookmark(
                   Bookmark(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
                     title: titleController.text,
                     url: urlController.text,
                     favicon: null,

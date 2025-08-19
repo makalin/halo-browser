@@ -37,6 +37,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('History'),
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
@@ -91,87 +94,109 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search history...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+      body: Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          children: [
+            // Search bar
+            Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search history...',
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),
-          ),
           
-          // History list
-          Expanded(
-            child: Consumer<HistoryProvider>(
-              builder: (context, historyProvider, child) {
-                if (!historyProvider.isInitialized) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+            // History list
+            Expanded(
+              child: Consumer<HistoryProvider>(
+                builder: (context, historyProvider, child) {
+                  if (!historyProvider.isInitialized) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-                List<HistoryEntry> filteredHistory = _getFilteredHistory(historyProvider);
-                
-                if (filteredHistory.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.history,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isNotEmpty ? 'No history found' : 'No history yet',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  List<HistoryEntry> filteredHistory = _getFilteredHistory(historyProvider);
+                  
+                  if (filteredHistory.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
-                        ),
-                        if (_searchQuery.isNotEmpty)
+                          const SizedBox(height: 16),
                           Text(
-                            'Try adjusting your search terms',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                            _searchQuery.isNotEmpty ? 'No history found' : 'No history yet',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  itemCount: filteredHistory.length,
-                  itemBuilder: (context, index) {
-                    final entry = filteredHistory[index];
-                    return _HistoryItem(
-                      entry: entry,
-                      onTap: () => _openUrl(context, entry.url),
-                      onDelete: () => _deleteHistoryEntry(context, historyProvider, entry),
+                          if (_searchQuery.isNotEmpty)
+                            Text(
+                              'Try adjusting your search terms',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                              ),
+                            ),
+                        ],
+                      ),
                     );
-                  },
-                );
-              },
+                  }
+
+                  return ListView.builder(
+                    itemCount: filteredHistory.length,
+                    itemBuilder: (context, index) {
+                      final entry = filteredHistory[index];
+                      return _HistoryItem(
+                        entry: entry,
+                        onTap: () => _openUrl(context, entry.url),
+                        onDelete: () => _deleteHistoryEntry(context, historyProvider, entry),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -326,14 +351,14 @@ class _HistoryItem extends StatelessWidget {
               Text(
                 DateFormat.yMMMd().format(entry.timestamp),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '${entry.visitCount} visit${entry.visitCount > 1 ? 's' : ''}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
