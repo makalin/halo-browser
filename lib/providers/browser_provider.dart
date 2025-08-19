@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:halo_browser/models/tab.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BrowserProvider with ChangeNotifier {
   final List<BrowserTab> _tabs = [];
@@ -7,12 +8,22 @@ class BrowserProvider with ChangeNotifier {
   bool _isLoading = false;
   final List<String> _navigationHistory = [];
   int _currentHistoryIndex = -1;
+  
+  // Loading state tracking
+  DateTime? _loadingStartTime;
+  int _loadingDurationSeconds = 0;
+  
+  // Page cache for faster loading
+  final Map<String, String> _pageCache = {};
+  final Map<String, DateTime> _cacheTimestamps = {};
+  static const Duration _cacheExpiry = Duration(hours: 1);
 
   List<BrowserTab> get tabs => _tabs;
   BrowserTab? get currentTab => _currentTab;
   bool get isLoading => _isLoading;
   bool get canGoBack => _currentHistoryIndex > 0;
   bool get canGoForward => _currentHistoryIndex < _navigationHistory.length - 1;
+  int get loadingDurationSeconds => _loadingDurationSeconds;
 
   BrowserProvider() {
     _addNewTab();
@@ -55,6 +66,7 @@ class BrowserProvider with ChangeNotifier {
   void updateCurrentTabUrl(String url) {
     if (_currentTab != null && _currentTab!.url != url) {
       _currentTab!.url = url;
+      _updateTabTitle();
       _addToHistory(url);
       notifyListeners();
     }
@@ -67,11 +79,50 @@ class BrowserProvider with ChangeNotifier {
     }
   }
 
+  void _updateTabTitle() {
+    if (_currentTab != null) {
+      final url = _currentTab!.url;
+      if (url.startsWith('about:')) {
+        _currentTab!.title = 'New Tab';
+      } else {
+        // Extract domain from URL for a cleaner title
+        try {
+          final uri = Uri.parse(url);
+          final domain = uri.host.isNotEmpty ? uri.host : url;
+          _currentTab!.title = domain;
+        } catch (e) {
+          _currentTab!.title = url;
+        }
+      }
+    }
+  }
+
   void setLoading(bool loading) {
     if (_isLoading != loading) {
       _isLoading = loading;
+      
+      if (loading) {
+        _loadingStartTime = DateTime.now();
+        _loadingDurationSeconds = 0;
+        // Start duration counter
+        _startLoadingTimer();
+      } else {
+        _loadingStartTime = null;
+        _loadingDurationSeconds = 0;
+      }
+      
       notifyListeners();
     }
+  }
+
+  void _startLoadingTimer() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (_isLoading && _loadingStartTime != null) {
+        _loadingDurationSeconds = DateTime.now().difference(_loadingStartTime!).inSeconds;
+        notifyListeners();
+        _startLoadingTimer(); // Continue counting
+      }
+    });
   }
 
   void _addToHistory(String url) {
@@ -87,11 +138,29 @@ class BrowserProvider with ChangeNotifier {
     }
   }
 
-  void navigateToUrl(String url) {
+  Future<void> navigateToUrl(String url) async {
     if (_currentTab != null) {
       _currentTab!.url = url;
+      _updateTabTitle();
       _addToHistory(url);
+      
+      // Try to launch URL if it's not an internal page
+      if (!url.startsWith('about:')) {
+        await _launchUrl(url);
+      }
+      
       notifyListeners();
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('Failed to launch URL: $e');
     }
   }
 
@@ -101,6 +170,7 @@ class BrowserProvider with ChangeNotifier {
       final url = _navigationHistory[_currentHistoryIndex];
       if (_currentTab != null && _currentTab!.url != url) {
         _currentTab!.url = url;
+        _updateTabTitle();
         notifyListeners();
       }
     }
@@ -112,6 +182,7 @@ class BrowserProvider with ChangeNotifier {
       final url = _navigationHistory[_currentHistoryIndex];
       if (_currentTab != null && _currentTab!.url != url) {
         _currentTab!.url = url;
+        _updateTabTitle();
         notifyListeners();
       }
     }
@@ -157,5 +228,40 @@ class BrowserProvider with ChangeNotifier {
   void closeAllTabs() {
     _tabs.clear();
     _addNewTab();
+  }
+
+  // Page caching methods
+  void cachePage(String url, String content) {
+    _pageCache[url] = content;
+    _cacheTimestamps[url] = DateTime.now();
+    _cleanupExpiredCache();
+  }
+
+  String? getCachedPage(String url) {
+    final timestamp = _cacheTimestamps[url];
+    if (timestamp != null && 
+        DateTime.now().difference(timestamp) < _cacheExpiry) {
+      return _pageCache[url];
+    }
+    return null;
+  }
+
+  void _cleanupExpiredCache() {
+    final now = DateTime.now();
+    final expiredUrls = _cacheTimestamps.entries
+        .where((entry) => now.difference(entry.value) > _cacheExpiry)
+        .map((entry) => entry.key)
+        .toList();
+    
+    for (final url in expiredUrls) {
+      _pageCache.remove(url);
+      _cacheTimestamps.remove(url);
+    }
+  }
+
+  void clearCache() {
+    _pageCache.clear();
+    _cacheTimestamps.clear();
+    notifyListeners();
   }
 } 

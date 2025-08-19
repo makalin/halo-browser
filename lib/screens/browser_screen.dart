@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:halo_browser/providers/browser_provider.dart';
+
+import 'package:halo_browser/providers/window_settings_provider.dart';
 import 'package:halo_browser/widgets/address_bar.dart';
 import 'package:halo_browser/widgets/tab_bar.dart';
-import 'package:halo_browser/providers/browser_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:halo_browser/widgets/top_menu_bar.dart';
 import 'package:halo_browser/screens/bookmarks_screen.dart';
 import 'package:halo_browser/screens/downloads_screen.dart';
 import 'package:halo_browser/screens/settings_screen.dart';
 import 'package:halo_browser/screens/history_screen.dart';
-import 'package:halo_browser/providers/theme_provider.dart';
+import 'package:halo_browser/screens/developer_tools_screen.dart';
+import 'package:halo_browser/models/tab.dart';
 
 class BrowserScreen extends StatefulWidget {
   const BrowserScreen({super.key});
@@ -17,50 +21,96 @@ class BrowserScreen extends StatefulWidget {
 }
 
 class _BrowserScreenState extends State<BrowserScreen> {
-  int _currentIndex = 0;
+  int _selectedIndex = 0;
 
   final List<Widget> _screens = [
     const _BrowserContent(),
     const BookmarksScreen(),
-    const HistoryScreen(),
     const DownloadsScreen(),
+    const HistoryScreen(),
+    const DeveloperToolsScreen(),
     const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.web),
-            label: 'Browser',
+    return Consumer<WindowSettingsProvider>(
+      builder: (context, windowSettings, child) {
+        return Scaffold(
+          body: Column(
+            children: [
+              // Top menu bar
+              const TopMenuBar(),
+              
+              // Address bar
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: const AddressBar(),
+              ),
+              
+              // Tab bar
+              const CustomTabBar(),
+              
+              // Main content area
+              Expanded(
+                child: _screens[_selectedIndex],
+              ),
+              
+              // Bottom navigation (minimizable)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: windowSettings.isBottomNavVisible ? 80 : 0,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: windowSettings.isBottomNavVisible ? 1.0 : 0.0,
+                  child: NavigationBar(
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: (index) {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
+                    destinations: const [
+                      NavigationDestination(
+                        icon: Icon(Icons.web),
+                        label: 'Browser',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.bookmark),
+                        label: 'Bookmarks',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.download),
+                        label: 'Downloads',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.history),
+                        label: 'History',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.code),
+                        label: 'Dev Tools',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.settings),
+                        label: 'Settings',
+                      ),
+                    ],
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.bookmark),
-            label: 'Bookmarks',
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => windowSettings.toggleBottomNav(),
+            child: Icon(
+              windowSettings.isBottomNavVisible ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.download),
-            label: 'Downloads',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -68,50 +118,139 @@ class _BrowserScreenState extends State<BrowserScreen> {
 class _BrowserContent extends StatelessWidget {
   const _BrowserContent();
 
-  IconData _getUrlIcon(String url) {
-    if (url.startsWith('about:')) {
-      return Icons.home;
-    } else if (url.startsWith('https://')) {
-      return Icons.lock;
-    } else if (url.startsWith('http://')) {
-      return Icons.info;
-    } else {
-      return Icons.web;
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<BrowserProvider>(
+      builder: (context, browserProvider, child) {
+        final currentTab = browserProvider.currentTab;
+        final isLoading = browserProvider.isLoading;
+        final loadingDuration = browserProvider.loadingDurationSeconds;
+        
+        // Update app title with URL and loading info
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (currentTab != null) {
+            String title = 'Halo Browser';
+            if (currentTab.url != 'about:blank') {
+              title = '${currentTab.title} - Halo Browser';
+              if (isLoading && loadingDuration > 0) {
+                title = 'Loading... (${loadingDuration}s) - $title';
+              }
+            }
+            // This would update the window title in a real desktop app
+          }
+        });
+
+        return Column(
+          children: [
+            // Loading progress bar
+            if (isLoading)
+              LinearProgressIndicator(
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            
+            // Main content area
+            Expanded(
+              child: _buildContent(currentTab, isLoading),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  Widget _buildFeatureCard(BuildContext context, IconData icon, String title, String subtitle) {
+  Widget _buildContent(BrowserTab? currentTab, bool isLoading) {
+    if (currentTab == null || currentTab.url == 'about:blank') {
+      return _buildWelcomeScreen();
+    }
+
+    if (isLoading) {
+      return _buildLoadingScreen(currentTab.url);
+    }
+
+    return _buildUrlDisplay(currentTab.url);
+  }
+
+  Widget _buildWelcomeScreen() {
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
+      padding: const EdgeInsets.all(32),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            icon,
-            size: 32,
-            color: Theme.of(context).colorScheme.primary,
+            Icons.web,
+            size: 80,
+            color: Colors.grey[400],
           ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 24),
+          const Text(
+            'Welcome to Halo Browser',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Enter a URL in the address bar above to start browsing.',
+            style: TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 32),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              _buildFeatureCard(
+                Icons.psychology,
+                'AI-Powered',
+                'Get intelligent assistance and page analysis',
+              ),
+              _buildFeatureCard(
+                Icons.code,
+                'Developer Tools',
+                'Advanced scripting and content extraction',
+              ),
+              _buildFeatureCard(
+                Icons.security,
+                'Privacy Focused',
+                'Browse with enhanced privacy and security',
+              ),
+              _buildFeatureCard(
+                Icons.speed,
+                'Lightning Fast',
+                'Optimized for speed and performance',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingScreen(String url) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 24),
           Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            'Loading...',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            url,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
             ),
             textAlign: TextAlign.center,
           ),
@@ -120,161 +259,97 @@ class _BrowserContent extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const CustomTabBar(),
-        Row(
-          children: [
-            Expanded(child: const AddressBar()),
-            // Theme toggle button
-            Consumer<ThemeProvider>(
-              builder: (context, themeProvider, child) {
-                return IconButton(
-                  icon: Icon(
-                    themeProvider.isDarkMode 
-                      ? Icons.light_mode 
-                      : Icons.dark_mode,
-                  ),
-                  onPressed: () => themeProvider.toggleTheme(),
-                  tooltip: themeProvider.isDarkMode 
-                    ? 'Switch to light mode' 
-                    : 'Switch to dark mode',
-                );
-              },
-            ),
-          ],
-        ),
-        Expanded(
-          child: Consumer<BrowserProvider>(
-            builder: (context, provider, child) {
-              final currentTab = provider.currentTab;
-              if (currentTab == null) {
-                return const Center(
-                  child: Text('No tabs open'),
-                );
-              }
-
-              return Container(
-                color: Theme.of(context).colorScheme.surface,
-                child: Column(
-                  children: [
-                    // URL display bar
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            _getUrlIcon(currentTab.url),
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              currentTab.url,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontFamily: 'monospace',
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (provider.isLoading)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Browser content area
-                    Expanded(
-                      child: Container(
-                        color: Theme.of(context).colorScheme.surface,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.web,
-                                size: 80,
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                'Halo Browser',
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Fast, Privacy-Focused Browsing',
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Text(
-                                  'Web version - Use desktop app for full functionality',
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                              Wrap(
-                                spacing: 16,
-                                runSpacing: 16,
-                                children: [
-                                  _buildFeatureCard(
-                                    context,
-                                    Icons.security,
-                                    'Privacy First',
-                                    'No tracking, no telemetry',
-                                  ),
-                                  _buildFeatureCard(
-                                    context,
-                                    Icons.speed,
-                                    'Lightning Fast',
-                                    'Optimized for performance',
-                                  ),
-                                  _buildFeatureCard(
-                                    context,
-                                    Icons.devices,
-                                    'Cross Platform',
-                                    'Works everywhere',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+  Widget _buildUrlDisplay(String url) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _getUrlIcon(url),
+            size: 80,
+            color: Colors.grey[400],
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          Text(
+            'Page Loaded',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'URL: $url',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'This is a web-compatible interface. In a desktop app, this would display the actual web page content.',
+            style: const TextStyle(fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _buildFeatureCard(IconData icon, String title, String description) {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 40,
+            color: Colors.blue[600],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getUrlIcon(String url) {
+    if (url.contains('github.com')) return Icons.code;
+    if (url.contains('stackoverflow.com')) return Icons.question_answer;
+    if (url.contains('youtube.com')) return Icons.play_circle;
+    if (url.contains('google.com')) return Icons.search;
+    if (url.contains('news') || url.contains('blog')) return Icons.article;
+    if (url.contains('shop') || url.contains('store')) return Icons.shopping_cart;
+    return Icons.web;
   }
 } 

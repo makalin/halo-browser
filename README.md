@@ -1,201 +1,243 @@
-# 🌐 Halo Browser
+# Halo Browser
 
 ![Halo Browser Logo](assets/images/logo.png)
 
-**Halo** is a lightning-fast, privacy-focused, and cross-platform web browser designed for modern devices. Built with performance in mind, Halo runs natively on **desktop**, **mobile**, and even **embedded systems** using a unified codebase.
+**Lightning-fast, privacy-focused, and cross-platform web browser with advanced developer tools and AI integration**
 
 ## 🚀 Features
 
-### Core Features
-- 🧊 **Minimal UI**, zero bloat
-- 🔒 **Privacy-first**: no tracking, no telemetry
-- ⚡️ **Blazing fast** rendering with WebView / WebKit / Blink support
-- 📱 **Cross-platform**: Linux, Windows, macOS, Android, iOS
-- 🌙 Dark mode by default
+### Core Browser Features
+- **Advanced Tab Management**: Multiple tabs with drag & drop, duplication, and smart organization
+- **Smart Navigation**: Back/Forward navigation with history tracking
+- **Address Bar**: Intelligent URL input with search suggestions from bookmarks and history
+- **Bookmark Management**: One-click bookmark toggle with favicon support
+- **Browsing History**: Comprehensive history tracking with search and filtering
+- **Download Manager**: Organized download tracking and management
+- **Theme Support**: Light, dark, and system theme modes with Material Design 3
 
-### Browser Features
-- 🎯 **Smart Address Bar**
-  - Search suggestions from bookmarks and history
-  - Multiple search engine support
-  - URL auto-completion
-  - Clear navigation controls
-  - Back/Forward navigation buttons
-  - Refresh/Stop loading button
-  - One-click bookmark toggle
+### 🧠 AI-Powered Features
+- **Multi-AI Integration**: Support for ChatGPT, Grok, Claude, and Ollama
+- **Intelligent Page Analysis**: AI-powered content analysis and insights
+- **Smart Suggestions**: Context-aware AI assistance for browsing issues
+- **Automated Content Processing**: AI-driven content extraction and summarization
+- **Custom AI Workflows**: Create and save AI-powered automation scripts
 
-- 📑 **Advanced Tab Management**
-  - Multiple tab support with visual indicators
-  - Tab previews and context menus
-  - Tab persistence and reordering
-  - Quick tab switching and duplication
-  - Close other tabs functionality
-  - Bulk tab operations (close all, close others)
+### 🛠️ Developer Tools & Automation
+- **Script Engine**: Execute JavaScript, Python, and regex scripts on web pages
+- **Content Extraction**: CSS selector-based content extraction with multiple output formats
+- **Automation Scripts**: Save, load, and manage custom automation scripts
+- **Real-time Debugging**: Console logging, error detection, and page issue monitoring
+- **Script Library**: Import/export scripts and share with the community
+- **Extraction Rules**: Define and save content extraction patterns for repeated use
 
-- 🔖 **Bookmarks System**
-  - Easy bookmark management
-  - Bookmark folders and organization
-  - Search functionality
-  - Favicon support
-  - Quick bookmark toggle from address bar
+### 🔍 Advanced Content Management
+- **Real-time Language Parsing**: Extract text, images, and links from any webpage
+- **Automated Data Collection**: Set up rules to automatically extract specific content
+- **Content Export**: Save extracted content to local folders in various formats
+- **Batch Processing**: Apply extraction rules across multiple pages
+- **Custom Output Formats**: JSON, CSV, plain text, and structured data export
 
-- 📚 **Browsing History**
-  - Comprehensive history tracking
-  - Search and filter by date ranges
-  - Visit count tracking
-  - Bulk history management
-  - Clear old history options
+### 🎨 Customization & UX
+- **Minimizable Interface**: Collapsible bottom navigation and side panels
+- **Window Memory**: Remembers window size, position, and state across sessions
+- **Responsive Design**: Adapts to different screen sizes and orientations
+- **Keyboard Shortcuts**: Power user shortcuts for common actions
+- **Custom Themes**: Create and share custom color schemes
 
-- ⬇️ **Downloads Manager**
-  - Download speed tracking
-  - Progress monitoring
-  - Pause/Resume support
-  - File type detection
-  - Download queue management
+### 🔒 Privacy & Security
+- **Privacy-First Design**: No tracking, no telemetry, no data collection
+- **Secure Browsing**: Enhanced security features and warnings
+- **Content Filtering**: Block unwanted content and scripts
+- **Local Processing**: AI and automation run locally when possible
 
-- ⚙️ **Settings & Customization**
-  - Theme customization (light/dark mode)
-  - Search engine preferences
-  - Privacy settings
-  - Download location configuration
-  - Browser behavior options
+## 🏗️ Tech Stack
 
-### Advanced Features
-- 🔄 **Navigation History**
-  - Back/Forward navigation with visual indicators
-  - Session-based navigation tracking
-  - Smart URL processing and validation
+- **Frontend**: Flutter with Material Design 3
+- **State Management**: Provider pattern with ChangeNotifier
+- **Storage**: SQLite for history, SharedPreferences for settings
+- **AI Integration**: RESTful API integration with multiple AI services
+- **Script Execution**: JavaScript engine and Python interpreter support
+- **Content Processing**: HTML parsing and CSS selector engine
+- **Cross-Platform**: Web, macOS, Windows, and Linux support
 
-- 🔍 **Smart Search & Suggestions**
-  - Real-time search suggestions
-  - History and bookmark integration
-  - URL auto-completion
-  - Search engine fallbacks
-
-- 🎨 **Modern UI/UX**
-  - Material Design 3 components
-  - Responsive layout design
-  - Smooth animations and transitions
-  - Context-aware interface elements
-
-## 🛠️ Tech Stack
-
-| Layer             | Technology                                      |
-|------------------|-------------------------------------------------|
-| Core Engine       | [Chromium Embedded Framework (CEF)] / [WebKit2] |
-| GUI Framework     | [Flutter] (mobile + desktop)                    |
-| Native Bridge     | Rust (via `tauri` or `flutter_rust_bridge`)     |
-| Packaging Tool    | [Tauri] (for Desktop), [Flutter] (for Mobile)   |
-| Build System      | Cargo (Rust) + Flutter                         |
-| Storage           | SQLite (for bookmarks/history)                  |
-| State Management  | Provider (Flutter)                             |
-| WebView           | flutter_inappwebview                           |
-
-> ⚙️ **Rust + Flutter + Tauri** = Ultra-light, secure, and fast
-
-## 🧪 Installation (Developer)
+## 🚀 Getting Started
 
 ### Prerequisites
+- Flutter SDK (3.16.0 or higher)
+- Dart SDK (3.2.0 or higher)
+- For macOS: Xcode 14.0+ and CocoaPods
+- For AI features: API keys for desired services
 
-- [Flutter](https://flutter.dev/docs/get-started/install) (latest stable)
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
-- [Tauri CLI](https://tauri.app/v1/guides/getting-started/prerequisites)
-- Platform-specific build tools:
-  - Windows: Visual Studio with C++ build tools
-  - macOS: Xcode Command Line Tools
-  - Linux: build-essential, libwebkit2gtk-4.0-dev
+### Installation
 
-### Clone and Run
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/halo-browser.git
+   cd halo-browser
+   ```
+
+2. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Configure AI services** (optional)
+   - Add API keys in the AI settings
+   - Enable desired AI services
+   - Configure local Ollama instance if using
+
+4. **Run the application**
+   ```bash
+   # For web
+   flutter run -d chrome
+   
+   # For macOS
+   flutter run -d macos
+   
+   # For other platforms
+   flutter run
+   ```
+
+### Building for Production
 
 ```bash
-git clone https://github.com/makalin/halo-browser.git
-cd halo-browser
-flutter pub get
-cargo tauri dev
+# Web build
+flutter build web --release
+
+# macOS build
+flutter build macos --release
+
+# Windows build
+flutter build windows --release
+
+# Linux build
+flutter build linux --release
 ```
 
-## 📦 Platforms
+## 🎯 Use Cases
 
-* ✅ Windows (x86\_64, ARM64)
-* ✅ macOS (Intel, M1/M2)
-* ✅ Linux (All major distros)
-* ✅ Android (min SDK 21)
-* ✅ iOS (iOS 13+)
+### For Developers
+- **Web Scraping**: Extract data from websites using CSS selectors
+- **Automation**: Create scripts to automate repetitive web tasks
+- **Testing**: Use scripts to test web applications
+- **Content Analysis**: AI-powered analysis of web content
+- **Data Collection**: Automated collection of web data
 
-## 📁 Project Structure
+### For Researchers
+- **Data Mining**: Extract structured data from research websites
+- **Content Analysis**: AI-powered analysis of academic content
+- **Automated Research**: Scripts to gather research data
+- **Citation Management**: Extract and organize research citations
 
-```
-halo-browser/
-├── lib/                    # Flutter UI code
-│   ├── models/            # Data models
-│   ├── providers/         # State management
-│   ├── screens/           # Main screens
-│   ├── widgets/           # Reusable widgets
-│   └── main.dart          # Entry point
-├── src-tauri/             # Rust backend
-│   ├── src/              # Rust source code
-│   └── Cargo.toml        # Rust dependencies
-├── assets/                # Static assets
-├── test/                  # Test files
-├── pubspec.yaml          # Flutter dependencies
-└── README.md
-```
+### For Content Creators
+- **Content Monitoring**: Track changes on competitor websites
+- **Image Collection**: Automated image gathering for projects
+- **Text Extraction**: Extract text content for analysis
+- **Link Management**: Organize and categorize web links
 
-## 🧠 Roadmap
+### For Business Users
+- **Market Research**: Monitor competitor websites and pricing
+- **Lead Generation**: Extract contact information from websites
+- **Content Aggregation**: Gather content from multiple sources
+- **Automated Reporting**: Generate reports from web data
 
-### Completed ✅
-- [x] MVP: WebView + Address bar + Tabs
-- [x] Bookmark management system
-- [x] Download manager with progress tracking
-- [x] Settings screen with theme support
-- [x] Dark mode support
-- [x] **Advanced tab management** (duplication, reordering, bulk operations)
-- [x] **Enhanced address bar** (navigation controls, smart suggestions)
-- [x] **Browsing history system** (tracking, search, filtering)
-- [x] **Navigation history** (back/forward with visual indicators)
-- [x] **Smart search suggestions** (history + bookmarks integration)
-- [x] **Modern UI components** (Material Design 3, responsive layout)
+## 📚 Documentation
 
-### In Progress 🚧
-- [ ] Ad-blocking engine (Rust)
-- [ ] Extension sandbox (WASM)
-- [ ] Bookmark & history sync
-- [ ] Offline mode (caching)
-- [ ] PWA support
+### Scripting Guide
+- [JavaScript Scripting](docs/scripting/javascript.md)
+- [Python Automation](docs/scripting/python.md)
+- [Content Extraction](docs/extraction/README.md)
+- [AI Integration](docs/ai/README.md)
 
-### Planned 📋
-- [ ] Password manager
-- [ ] Reading mode
-- [ ] Custom themes
-- [ ] Gesture controls
-- [ ] Voice search
-- [ ] **Incognito mode**
-- [ ] **Tab groups and organization**
-- [ ] **Advanced privacy features**
-- [ ] **Performance monitoring**
-- [ ] **Keyboard shortcuts**
+### API Reference
+- [Script Engine API](docs/api/script-engine.md)
+- [Content Extraction API](docs/api/extraction.md)
+- [AI Provider API](docs/api/ai-provider.md)
+- [Browser Provider API](docs/api/browser-provider.md)
+
+### Examples
+- [Basic Scripts](examples/scripts/)
+- [Extraction Rules](examples/extraction/)
+- [AI Workflows](examples/ai/)
+- [Automation Scripts](examples/automation/)
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help:
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
+### Development Setup
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-### Development Guidelines
-
-- Follow the Flutter style guide
-- Write tests for new features
-- Update documentation
-- Keep commits atomic and well-described
-- Use conventional commits format
+### Areas for Contribution
+- **AI Integration**: Add support for new AI services
+- **Script Engine**: Enhance script execution capabilities
+- **Content Extraction**: Improve extraction algorithms
+- **UI/UX**: Enhance the user interface
+- **Documentation**: Improve guides and examples
+- **Testing**: Add comprehensive test coverage
 
 ## 📄 License
 
-MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Flutter team for the amazing framework
+- Material Design team for the design system
+- OpenAI, Anthropic, and xAI for AI service APIs
+- Ollama team for local AI models
+- The open-source community for inspiration and tools
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/yourusername/halo-browser/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/halo-browser/discussions)
+- **Documentation**: [Wiki](https://github.com/yourusername/halo-browser/wiki)
+- **Email**: support@halobrowser.com
+
+## 🔮 Roadmap
+
+### Completed ✅
+- [x] Basic browser functionality with tabs
+- [x] Bookmark management system
+- [x] Download manager
+- [x] History tracking and search
+- [x] Theme support (light/dark/system)
+- [x] Settings screen with theme support
+- [x] Window settings persistence
+- [x] Loading progress indicators
+- [x] URL-based title updates
+- [x] Loading duration tracking
+- [x] Top menu bar with window controls
+- [x] AI service integration framework
+- [x] Advanced logging and error detection
+- [x] Script engine for automation
+- [x] Content extraction system
+- [x] Developer tools interface
+
+### In Progress 🚧
+- [ ] Real JavaScript engine integration
+- [ ] Python interpreter integration
+- [ ] Advanced network monitoring
+- [ ] Performance profiling tools
+- [ ] Extension system
+
+### Planned 📋
+- [ ] Advanced AI workflows
+- [ ] Machine learning models for content analysis
+- [ ] Collaborative script sharing
+- [ ] Cloud sync for scripts and settings
+- [ ] Mobile app versions
+- [ ] Enterprise features
+- [ ] Advanced security features
+- [ ] Performance optimization
+- [ ] Accessibility improvements
+- [ ] Internationalization (i18n)
 
 ---
 
-> **Halo** – The browser that stays out of your way, so you can blaze your own path.
+**Halo Browser** - Empowering developers and power users with intelligent web automation and AI-powered browsing.
