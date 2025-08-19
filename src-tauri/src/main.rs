@@ -3,7 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::Manager;
 use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 
@@ -42,5 +41,8 @@ fn main() {
         .manage(state)
         .invoke_handler(tauri::generate_handler![add_bookmark, get_bookmarks])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
-} 
+        .unwrap_or_else(|e| {
+            eprintln!("Error while running tauri application: {}", e);
+            std::process::exit(1);
+        });
+}

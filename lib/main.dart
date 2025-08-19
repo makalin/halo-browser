@@ -6,6 +6,7 @@ import 'package:halo_browser/providers/browser_provider.dart';
 import 'package:halo_browser/providers/settings_provider.dart';
 import 'package:halo_browser/providers/bookmarks_provider.dart';
 import 'package:halo_browser/providers/downloads_provider.dart';
+import 'package:halo_browser/providers/history_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ class HaloBrowser extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => BookmarksProvider()),
         ChangeNotifierProvider(create: (_) => DownloadsProvider()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

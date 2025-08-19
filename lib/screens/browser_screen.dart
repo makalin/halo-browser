@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:halo_browser/screens/bookmarks_screen.dart';
 import 'package:halo_browser/screens/downloads_screen.dart';
 import 'package:halo_browser/screens/settings_screen.dart';
+import 'package:halo_browser/screens/history_screen.dart';
 
 class BrowserScreen extends StatefulWidget {
   const BrowserScreen({super.key});
@@ -21,6 +22,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
   final List<Widget> _screens = [
     const _BrowserContent(),
     const BookmarksScreen(),
+    const HistoryScreen(),
     const DownloadsScreen(),
     const SettingsScreen(),
   ];
@@ -44,6 +46,10 @@ class _BrowserScreenState extends State<BrowserScreen> {
           NavigationDestination(
             icon: Icon(Icons.bookmark),
             label: 'Bookmarks',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history),
+            label: 'History',
           ),
           NavigationDestination(
             icon: Icon(Icons.download),
@@ -80,17 +86,12 @@ class _BrowserContent extends StatelessWidget {
 
               return Stack(
                 children: [
-                  InAppWebView(
-                    key: ValueKey(currentTab.id),
-                    initialUrlRequest: URLRequest(
-                      url: WebUri(currentTab.url ?? 'about:blank'),
+                  // InAppWebView is not supported on web, so we use a placeholder
+                  Container(
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: Text('WebView not supported on web platform'),
                     ),
-                    onLoadStart: (controller, url) {
-                      provider.updateCurrentTabUrl(url?.toString() ?? '');
-                    },
-                    onLoadStop: (controller, url) {
-                      provider.updateCurrentTabUrl(url?.toString() ?? '');
-                    },
                   ),
                   if (provider.isLoading)
                     const LinearProgressIndicator(),

@@ -1,5 +1,7 @@
 # 🌐 Halo Browser
 
+![Halo Browser Logo](assets/images/logo.png)
+
 **Halo** is a lightning-fast, privacy-focused, and cross-platform web browser designed for modern devices. Built with performance in mind, Halo runs natively on **desktop**, **mobile**, and even **embedded systems** using a unified codebase.
 
 ## 🚀 Features
@@ -13,35 +15,67 @@
 
 ### Browser Features
 - 🎯 **Smart Address Bar**
-  - Search suggestions from bookmarks
+  - Search suggestions from bookmarks and history
   - Multiple search engine support
   - URL auto-completion
   - Clear navigation controls
+  - Back/Forward navigation buttons
+  - Refresh/Stop loading button
+  - One-click bookmark toggle
 
-- 📑 **Tab Management**
-  - Multiple tab support
-  - Tab previews
-  - Tab persistence
-  - Quick tab switching
+- 📑 **Advanced Tab Management**
+  - Multiple tab support with visual indicators
+  - Tab previews and context menus
+  - Tab persistence and reordering
+  - Quick tab switching and duplication
+  - Close other tabs functionality
+  - Bulk tab operations (close all, close others)
 
-- 🔖 **Bookmarks**
+- 🔖 **Bookmarks System**
   - Easy bookmark management
-  - Bookmark folders
+  - Bookmark folders and organization
   - Search functionality
   - Favicon support
+  - Quick bookmark toggle from address bar
 
-- ⬇️ **Downloads**
+- 📚 **Browsing History**
+  - Comprehensive history tracking
+  - Search and filter by date ranges
+  - Visit count tracking
+  - Bulk history management
+  - Clear old history options
+
+- ⬇️ **Downloads Manager**
   - Download speed tracking
   - Progress monitoring
   - Pause/Resume support
   - File type detection
   - Download queue management
 
-- ⚙️ **Settings**
-  - Theme customization
+- ⚙️ **Settings & Customization**
+  - Theme customization (light/dark mode)
   - Search engine preferences
   - Privacy settings
   - Download location configuration
+  - Browser behavior options
+
+### Advanced Features
+- 🔄 **Navigation History**
+  - Back/Forward navigation with visual indicators
+  - Session-based navigation tracking
+  - Smart URL processing and validation
+
+- 🔍 **Smart Search & Suggestions**
+  - Real-time search suggestions
+  - History and bookmark integration
+  - URL auto-completion
+  - Search engine fallbacks
+
+- 🎨 **Modern UI/UX**
+  - Material Design 3 components
+  - Responsive layout design
+  - Smooth animations and transitions
+  - Context-aware interface elements
 
 ## 🛠️ Tech Stack
 
@@ -108,26 +142,37 @@ halo-browser/
 
 ## 🧠 Roadmap
 
-### Completed
+### Completed ✅
 - [x] MVP: WebView + Address bar + Tabs
-- [x] Bookmark management
-- [x] Download manager
-- [x] Settings screen
+- [x] Bookmark management system
+- [x] Download manager with progress tracking
+- [x] Settings screen with theme support
 - [x] Dark mode support
+- [x] **Advanced tab management** (duplication, reordering, bulk operations)
+- [x] **Enhanced address bar** (navigation controls, smart suggestions)
+- [x] **Browsing history system** (tracking, search, filtering)
+- [x] **Navigation history** (back/forward with visual indicators)
+- [x] **Smart search suggestions** (history + bookmarks integration)
+- [x] **Modern UI components** (Material Design 3, responsive layout)
 
-### In Progress
+### In Progress 🚧
 - [ ] Ad-blocking engine (Rust)
 - [ ] Extension sandbox (WASM)
 - [ ] Bookmark & history sync
 - [ ] Offline mode (caching)
 - [ ] PWA support
 
-### Planned
+### Planned 📋
 - [ ] Password manager
 - [ ] Reading mode
 - [ ] Custom themes
 - [ ] Gesture controls
 - [ ] Voice search
+- [ ] **Incognito mode**
+- [ ] **Tab groups and organization**
+- [ ] **Advanced privacy features**
+- [ ] **Performance monitoring**
+- [ ] **Keyboard shortcuts**
 
 ## 🤝 Contributing
 
